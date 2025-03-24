@@ -1,0 +1,35 @@
+Role:
+=====
+RoleId int primary key not NULL,
+RoleTitle varchar(50) not NULL
+
+User:
+======
+userId int primary key identity(1000,1),
+Name Nvarchar(50) not NULL,
+Family Nvarchar(50) not NULL,
+mobileNumber varchar(50),
+pasword varchar(50) not NULL
+timeRegister datetime,
+isActive Bit ,
+RoleId int,
+foreign key (RoleId) reference Role(RoleId)
+
+productGroups:
+============
+productGroupId int not NULL,
+productGroupTitle Nvarchar(50),
+parentGroup int NULL,
+foreign key (parentGroup) reference productGroups(parentGroupId)
+
+products:
+=========
+productId int primary key identity(100,1),
+productName Nvarchar(50) not NULL,
+productImage Nvarchar(50), 
+timeRegister datetime,
+isActive Bit ,
+productGroupId int,
+RegisterUserId int,
+foreign key (RegisterUserId) reference User (userId)
+foreign key (productGroupId) reference productGroups (productGroupId)

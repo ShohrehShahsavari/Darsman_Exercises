@@ -1,0 +1,66 @@
+
+show collections
+use dbFoodCatering
+db.createCollection('Customers')
+db.Customers.insertMany([{'_id':1,'customerName':'ali','customerFamily':'alaie','Mobile':'0912000','Address':'Tehran','isActive':1},
+                       {'_id':2,'customerFamily':'rezaie','Mobile':'0911000','Address':'Esfahan','isActive':1},
+                      {'_id':3,'customerName':'ahmad','customerFamily':'ahmadi','Mobile':'0913000','Address':'Mashhad','isActive':0},
+                      {'_id':4,'customerName':'hasan','customerFamily':'hasani','Address':'Shiraz','isActive':1},
+                      {'_id':5,'customerName':'hosein','customerFamily':'hoseni','Mobile':'0914000','isActive':1},
+                       {'_id':6,'customerName':'ebrahim','customerFamily':'ebrahimi','Mobile':'0915000','Address':'Tabriz','isActive':0},
+                       {'_id':7,'customerName':'mohamad','customerFamily':'mohamadi','isActive':1},
+                       {'_id':8,'customerName':'amin','customerFamily':'amini','Mobile':'0916000','Address':'Ahwaz','isActive':1},
+                      {'_id':9,'customerName':'arash','customerFamily':'arashi','Mobile':'0917000','Address':'zabol','isActive':1},
+                       {'_id':10,'customerName':'shahram','customerFamily':'shahi','Mobile':'0918','Address':'hamedan','isActive':0}])
+db.createCollection('Foods')
+db.Foods.insertMany([{'_id':101,'Name':'Cholo-kabab','Detail':'rice-meat','Price':120},
+                     {'_id':102,'Name':'cholo-Morgh','Detail':'rice-chiken','Price':100},
+                     {'_id':103,'Name':'cholo-Khoresh-gheme','Detail':'rice-meat-been','Price':80},
+                     {'_id':104,'Name':'cholo-khoresh-bademjan','Detail':'rice-eggplant','Price':80},
+                     {'_id':105,'Name':'tahchin','Detail':'chiken-rice','Price':100},
+                     {'_id':106,'Name':'khorak-gosht','Detail':'meat-vegetables','Price':220},
+                     {'_id':107,'Name':'khorak-morgh','Detail':'chiken-vegetables','Price':180},
+                     {'_id':108,'Name':'estamboli','Detail':'rice-vegetables','Price':80},
+                     {'_id':109,'Name':'pasta','Detail':'pasta-meat','Price':120},
+                     {'_id':110,'Name':'rice','Detail':'rice','Price':40}])
+db.createCollection('Orders')
+db.Orders.insertMany([{'_id':1001,'Date':'2023-05-04','Customer_Id':1,'Food_Id':102,'Number':1},
+                    {'_id':1002,'Date':'2023-05-04','Customer_Id':6,'Food_Id':108,'Number':1},
+                    {'_id':1003,'Date':'2023-05-04','Customer_Id':4,'Food_Id':107,'Number':1},
+                    {'_id':1004,'Date':'2023-05-04','Customer_Id':3,'Food_Id':101,'Number':1},
+                    {'_id':1005,'Date':'2023-05-04','Customer_Id':9,'Food_Id':105,'Number':1},
+                    {'_id':1006,'Date':'2023-05-04','Customer_Id':8,'Food_Id':103,'Number':1},
+                    {'_id':1007,'Date':'2023-05-05','Customer_Id':10,'Food_Id':103,'Number':1},
+                    {'_id':1008,'Date':'2023-05-05','Customer_Id':2,'Food_Id':108,'Number':1},
+                    {'_id':1009,'Date':'2023-05-06','Customer_Id':7,'Food_Id':110,'Number':1},
+                    {'_id':1010,'Date':'2023-05-06','Customer_Id':5,'Food_Id':107,'Number':1},
+					{'_id':1011,'Date':'2023-05-08','Customer_Id':4,'Food_Id':109,'Number':1}])
+
+## Query 1
+
+db.Foods.find({},{_id:1,Name:1,Price:1}).sort({Price:-1})
+
+## Query 2
+
+db.Customers.find({isActive:1},{customerName:1,customerFamily:1,Mobile:1,_id:0})
+
+## Query 3
+
+db.Foods.find({$and:[{Price:{$lt:260}},{Price:{$gt:120}}]},{Name:1,Price:1,_id:0})
+
+## Query 4
+
+db.Orders.find({Date:'2023-05-04'})
+
+## Query 5
+
+db.Orders.aggregate([{$match:{Date:'2023-05-04'}},{$lookup:{from:'Foods',localField:'Food_Id',foreignField:'_id',as:'FoodName'}},{$group:{_id:'$Food_Id',sum:{$sum:"$Price"}}}])
+
+db.Orders.aggregate([{$match:{Date:'2023-05-04'}},{$lookup:{from:'Foods',localField:'Food_Id',foreignField:'_id',as:'FoodName'}},{$group:{_id:'$Food_Id',count:{$count:{}}}}])
+
+## Query 6
+
+db.Orders.aggregate([{$match:{Customer_Id:4}},{$lookup:{from:'Foods',localField:'Food_Id',foreignField:'_id',as:'FoodName'}},{$group:{_id:'$Customer_Id',TotalOrder:{$count:{}},FoodOrder:{$push:'$FoodName.Name'}}}])
+
+
+db.Orders.aggregate([{$match:{Customer_Id:4}},{$lookup:{from:'Foods',localField:'Food_Id',foreignField:'_id',as:'FoodName'}},{$project:{_id:0,Customer_Id:1,FoodName:{Name:1}}}])
